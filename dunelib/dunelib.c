@@ -3553,9 +3553,8 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 
   // sets saaid...
   SAA7114_Reset(bdev);
-  if(bdev->saaid != 0x1f7114d0)
+  if(bdev->saaid != 0x1f7114d0 && bdev->saaid != 0x1f7115d0)
     {
-      // could be 7115...
       fprintf(stderr, "Warning: Unhandled SAA711x chip (%x)\n", bdev->saaid);
       fprintf(stderr, "Please contact author.\n");
     }
