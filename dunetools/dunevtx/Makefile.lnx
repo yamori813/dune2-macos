@@ -1,0 +1,23 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <21/03/03 20:53:13 keuchel@rainer-keuchel.de on mediadev>
+
+CFLAGS  = -g -D LINUX #-O2
+LDFLAGS = -g
+
+LIBS = 
+
+OBJS     = dunevtx.o hamm.o
+PROGNAME = dunevtx
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS)
+	$(CC) $(LDFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) /usr/local/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS)
+

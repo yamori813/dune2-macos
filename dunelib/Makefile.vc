@@ -1,0 +1,33 @@
+# -*- Makefile -*- for Win32
+#
+# Time-stamp: <28/12/02 07:29:09 keuchel@rainer-keuchel.de>
+
+CYPRESS = h:/src/vc/cypress/ezusbdrv
+
+!if "$(CFG)" == "RELEASE"
+CFLAGS  = -nologo -D WIN32 -O2
+LDFLAGS = -nologo
+!else
+CFLAGS  = -nologo -D WIN32 -Zi -Od
+LDFLAGS = -nologo -debug:full -pdb:none
+!endif
+
+CFLAGS  = $(CFLAGS) -I $(CYPRESS) -D EZUSB -D PATCHED_EZUSB
+
+LIBS    =
+
+LIBOBJS = dunelib.obj ezusb.obj b5data.obj # setup-kfir.obj setup-i2c.obj
+
+LIBNAME = libdune.lib
+
+all: $(LIBNAME)
+
+$(LIBNAME): $(LIBOBJS)
+	lib -out:$(LIBNAME) $(LIBOBJS)
+
+install: all
+	cp $(LIBNAME) h:/src/vc/lib
+	cp dunelib.h h:/src/vc/include
+
+clean:
+	rm -f $(LIBOBJS) $(LIBNAME) *.o *.a *~

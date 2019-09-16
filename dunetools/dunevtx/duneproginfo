@@ -1,0 +1,3 @@
+#!/bin/sh
+
+dunerec -z -R - | dunefilter -v | dunevtx -i

@@ -1,0 +1,6 @@
+#!/bin/sh
+
+export PATH=/usr/local/bin:$PATH
+export DISPLAY=localhost:0.0
+
+alevt -charset latin-2 -vbi dunevbi

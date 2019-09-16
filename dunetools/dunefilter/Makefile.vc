@@ -1,0 +1,23 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <17/03/03 21:59:28 keuchel@rainer-keuchel.de>
+
+CFLAGS  = -nologo -D WIN32 -I h:/src/vc/include
+LDFLAGS = -nologo -libpath:h:/src/vc/lib
+
+LIBS    = vc32.lib
+
+OBJS     = dunefilter.obj
+PROGNAME = dunefilter.exe
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS)
+	link $(LDFLAGS) -out:$(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) c:/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS)
+

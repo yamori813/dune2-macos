@@ -1,0 +1,74 @@
+NAME
+
+dunerec - a simple command-line mpeg recorder/player for the 
+Pinnacle PCTV Deluxe USB (Dune) device
+
+DESCIPTION
+
+dunerec records mpeg streams from a Pinnacle PCTV Deluxe usb device (Dune).  
+
+dunerec uses libusb by Johannes Erdfelt and Thomas Sailer.
+
+You can set most parameters via commandline options.
+
+USAGE
+
+dunerec <option> <actions>
+
+ACTIONS
+
+-R <fname>		Record mpeg. Use '-' for stdout.
+
+-S <opt>		Scan for channels. You can put the output in 
+                        channels.txt. Needs -i 0 option.
+
+			Opt 1: Scan only antenna channels.
+			Opt 2: Scan all channels.
+
+			Currently not supported for ntsc bands...
+
+-I <level>		Show some chip registers after init.
+			Level 1: Some info.
+			Level 2: More info.
+
+OPTIONS
+
+-a <freq>		Frequency in KHz.
+			default: 0
+
+-c <configfile>		Experimental.
+
+-d <level>		Show debug output.
+
+-i <inputsource>	0 = antenna 1 = svideo 2 = composite or
+			"tuner", "svideo", "composite"
+			default: 0
+
+-m <maxfilesize>        Maxfile size. Recorder starts new file
+                        when reached. No cut at GOP/No audio fix etc!
+
+-s <secs>		Number of secs to record.
+			default: 0 = unlimited
+
+-t <type>		Config type: dvd, dvdlong, dvd5mbit, svcd, svcd2, vcd, vcd2
+                        This option sets codec, video size, bitrate, 
+			audiofreq etc.
+
+			Most settings are like the vision settings,
+			some are special:
+
+			dvd5bmit uses 5 MBit video bitrate and 6.5 MBit peak
+			bitrate.
+
+			svcd and vcd use a fixed sector size, which produces
+			lots of padding. svcd2 and vcd2 do not use this.
+
+			default: dvd
+
+-v			Verbose. Show what's going on.
+
+-x <videostandard>	Can be pal or ntsc.
+			default: pal
+
+-z                      Turn on VBI. Needed vor dunevtx.
+

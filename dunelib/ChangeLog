@@ -1,0 +1,25 @@
+2004-01-07  root  <root@media.keuchel2000.net>
+
+	* dunelib.c (TDA9887_Init): Finally found out what i2c 0x86 is...
+
+2004-01-03  root  <root@media.keuchel2000.net>
+
+	* all: Lots of new formats, reorganization etc. Added SAA7114
+	reset and version check. Fixed vbi-disable. Fixed SAA7114 audio
+	clock settings for different formats. Fixed ucode loader for
+	comments at top of file that do not contain '*'.
+
+2003-12-23  root  <root@media.keuchel2000.net>
+
+	* dunelib.c (DuneI2CWriteCmd): MSP read needs index=1 -> no stop
+	condition.
+
+2003-12-07  root  <root@media.keuchel2000.net>
+
+	* dunelib.c (all): Changes for 1.0.3.105 driver and new microcodes.
+
+2003-10-11  root  <root@media.keuchel2000.net>
+
+	* dunelib.c (DuneSetFrequency): Fixed band switching.
+	
+

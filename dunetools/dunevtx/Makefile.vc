@@ -1,0 +1,23 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <21/03/03 17:28:56 keuchel@rainer-keuchel.de on mediadev>
+
+CFLAGS  = -nologo -D WIN32 -I h:/src/vc/include
+LDFLAGS = -nologo -libpath:h:/src/vc/lib
+
+LIBS    = vc32.lib wsock32.lib
+
+OBJS     = dunevtx.obj
+PROGNAME = dunevtx.exe
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS)
+	link $(LDFLAGS) -out:$(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) c:/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS)
+

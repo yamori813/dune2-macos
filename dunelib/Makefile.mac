@@ -1,0 +1,37 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <03/01/04 18:29:31 keuchel@rainer-keuchel.de on mediadev>
+
+CFLAGS  = -g -D MACOS -D LIBUSB1 -O2 
+LDFLAGS = -g
+
+LIBS = -lusb
+
+LIBOBJS = dunelib.o \
+kfir_dvd1_pal.o  kfir_dvd2_pal.o  kfir_dvd2_long_pal.o  kfir_dvd2_5mbit_pal.o \
+kfir_dvd1_ntsc.o kfir_dvd2_ntsc.o kfir_dvd2_long_ntsc.o kfir_dvd2_5mbit_ntsc.o \
+kfir_svcd1_mpeg2_pal.o  kfir_svcd2_mpeg2_pal.o \
+kfir_svcd1_mpeg2_ntsc.o kfir_svcd2_mpeg2_ntsc.o \
+kfir_svcd1_svcd_pal.o  kfir_svcd2_svcd_pal.o \
+kfir_svcd1_svcd_ntsc.o kfir_svcd2_svcd_ntsc.o \
+kfir_vcd1_mpeg1_pal.o  kfir_vcd2_mpeg1_pal.o \
+kfir_vcd1_mpeg1_ntsc.o kfir_vcd2_mpeg1_ntsc.o \
+kfir_vcd1_vcd_pal.o  kfir_vcd2_vcd_pal.o \
+kfir_vcd1_vcd_ntsc.o kfir_vcd2_vcd_ntsc.o libusb1.o
+
+LIBNAME = libdune.a
+
+all: $(LIBNAME)
+
+$(LIBNAME): $(LIBOBJS)
+	rm -f $(LIBNAME)
+	ar cq $(LIBNAME) $(LIBOBJS)
+
+install: all
+	cp $(LIBNAME) /usr/local/lib
+	cp dunelib.h /usr/local/include
+
+clean:
+	rm -f $(LIBOBJS) $(LIBNAME) *.obj *.lib *~
+
+dunelib.o: dunelib.h kfir.h

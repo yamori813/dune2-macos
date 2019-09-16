@@ -1,0 +1,23 @@
+# -*- Makefile -*- for Win32
+#
+# Time-stamp: <23/02/03 11:23:07 keuchel@rainer-keuchel.de>
+
+BLIBDIR = ../../dunelib
+CFLAGS  = -nologo -D WIN32 -I h:/src/vc/include -I $(BLIBDIR)
+LDFLAGS = -nologo -libpath:h:/src/vc/lib -libpath:$(BLIBDIR)
+
+LIBS    = vc32.lib libdune.lib wsock32.lib
+
+OBJS     = duneinit.obj
+PROGNAME = duneinit.exe
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS)
+	link $(LDFLAGS) -out:$(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) c:/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS) *.o duneinit *~

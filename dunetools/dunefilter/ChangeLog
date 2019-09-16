@@ -1,0 +1,5 @@
+2003-03-18  Rainer Keuchel  <keuchel@rainer-keuchel.de>
+
+	* dunefilter.c: Do not skip system header.
+	
+

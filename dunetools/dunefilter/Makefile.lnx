@@ -1,0 +1,23 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <17/03/03 21:59:20 keuchel@rainer-keuchel.de>
+
+CFLAGS  = -g -D LINUX #-O2
+LDFLAGS = -g
+
+LIBS = 
+
+OBJS     = dunefilter.o
+PROGNAME = dunefilter
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS)
+	$(CC) $(LDFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) /usr/local/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS)
+

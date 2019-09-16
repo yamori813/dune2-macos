@@ -1,0 +1,46 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <23/02/03 11:13:06 keuchel@rainer-keuchel.de>
+
+DUNELIBDIR = ../../dunelib
+
+CFLAGS  = -g -D LINUX -I $(DUNELIBDIR) -O2
+LDFLAGS = -g -L $(DUNELIBDIR)
+
+LIBS = -lusb -ldune -lpthread
+
+SERVER_OBJS     = duned.o server.o
+SERVER_PROGNAME = duned
+
+SHELL_OBJS      = dunesh.o
+SHELL_PROGNAME  = dunesh
+
+CLIENT_OBJS     = dunec.o
+CLIENT_PROGNAME = dunec
+
+OBJS  = $(SERVER_OBJS) $(CLIENT_OBJS) $(SHELL_OBJS)
+PROGS = $(SERVER_PROGNAME) $(CLIENT_PROGNAME) $(SHELL_PROGNAME)
+
+all: $(PROGS)
+
+$(SERVER_PROGNAME): $(SERVER_OBJS) $(DUNELIBDIR)/libdune.a
+	$(CC) $(LDFLAGS) -o $(SERVER_PROGNAME) $(SERVER_OBJS) $(LIBS)
+
+$(SHELL_PROGNAME): $(SHELL_OBJS) $(DUNELIBDIR)/libdune.a
+	$(CC) $(LDFLAGS) -o $(SHELL_PROGNAME) $(SHELL_OBJS) $(LIBS)
+
+install: all
+	(test -f /tmp/duned.pid && kill `cat /tmp/duned.pid`); true
+	sleep 1
+	chmod u+s duned
+	cp $(PROGS) /usr/local/bin
+	cp $(PROGS) /usr/local/lib/dune/bin
+
+clean:
+	rm -f $(PROGS) $(OBJS) *.exe *.obj *.pdb *~ *.bin *.res *.RES
+
+duned.o: $(DUNELIBDIR)/dunelib.h server.h duned.h duned.c
+	$(CC) $(CFLAGS) -c -D_SERVER -o duned.o duned.c
+
+dunesh.o: $(DUNELIBDIR)/dunelib.h server.h duned.h duned.c
+	$(CC) $(CFLAGS) -c -D_COMMANDLINE -o dunesh.o duned.c

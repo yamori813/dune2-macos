@@ -1,0 +1,90 @@
+# -*- Makefile -*- for Win32
+#
+# Time-stamp: <25/02/03 15:11:57 keuchel@rainer-keuchel.de>
+
+BLIBDIR = ../../dunelib
+CFLAGS  = -I ../lib -nologo -I h:/src/vc/include -I $(BLIBDIR) -D WIN32
+LDFLAGS = -nologo -libpath:h:/src/vc/lib -libpath:$(BLIBDIR)
+LIBS = vc32.lib inet.lib wsock32.lib advapi32.lib libdune.lib
+
+!if "$(CFG)" == ""
+CFG = RELEASESTATIC
+!endif
+
+!if "$(CFG)" == "RELEASESTATIC"
+CFLAGS  = $(CFLAGS) -O2
+LDFLAGS = $(LDFLAGS) -debug:none
+!endif
+
+!if "$(CFG)" == "DEBUGSTATIC"
+CFLAGS  = $(CFLAGS) -Od -Zi -Yd -DDEBUG=1 
+LDFLAGS = $(LDFLAGS) -debug:full -pdb:none
+!endif
+
+COMMANDLINE_OBJS = \
+duned-commandline.obj \
+win32.obj \
+
+SERVER_SERVICE_OBJS = \
+duned-server.obj \
+server-service.obj \
+service.obj \
+serviceinst.obj \
+ntmsg.obj \
+win32.obj \
+duned.res 
+
+SERVER_STANDALONE_OBJS = \
+duned-server.obj \
+server-standalone.obj \
+win32.obj \
+duned.res \
+
+all: duned-commandline.exe duned-service.exe duned-standalone.exe \
+dunec.exe
+
+duned-commandline.exe: $(COMMANDLINE_OBJS)
+	link $(LDFLAGS) -out:duned-commandline.exe $(COMMANDLINE_OBJS) $(LIBS)
+
+duned-service.exe: $(SERVER_SERVICE_OBJS)
+	link $(LDFLAGS) -out:duned-service.exe \
+             $(SERVER_SERVICE_OBJS) $(LIBS)
+
+duned-standalone.exe: $(SERVER_STANDALONE_OBJS)
+	link $(LDFLAGS) -out:duned-standalone.exe \
+             $(SERVER_STANDALONE_OBJS) $(LIBS)
+
+dunec.exe: dunec.obj
+	link $(LDFLAGS) -out:dunec.exe \
+             dunec.obj $(LIBS)
+
+######################################################################
+
+duned-commandline.obj: duned.c duned.h version.h
+	cl $(CFLAGS) -D_COMMANDLINE -c duned.c -Fo"duned-commandline.obj"
+
+duned-server.obj: duned.c duned.h version.h
+	cl $(CFLAGS) -D_SERVER -c duned.c -Fo"duned-server.obj"
+
+duned.res: ntmsg.rc
+
+ntmsg.rc: ntmsg.mc
+	mc ntmsg.mc
+
+clean:
+	rm -f *.exe *.obj *.res *.bin *.pdb ntmsg.rc y.tab.c y.tab.h
+	rm -f $(UNIXFILES) *.o 
+
+duned.res: duned.rc ntmsg.rc
+
+server-service.obj: server.c
+	$(CC) -c $(CFLAGS) -D_SERVICE=1 server.c -Fo"server-service.obj"
+
+server-standalone.obj: server.c
+	$(CC) -c $(CFLAGS) -D_STANDALONE server.c -Fo"server-standalone.obj"
+
+service.obj: service.c
+	$(CC) -c $(CFLAGS) -D_SERVICE=1 service.c -Fo"service.obj"
+
+install: all
+	cp dunec.exe c:/usr/local/lib/dune/bin

@@ -1,0 +1,28 @@
+# -*- Makefile -*- for Linux
+#
+# Time-stamp: <24/12/03 21:39:31 keuchel@rainer-keuchel.de on mediadev>
+
+DUNELIBDIR = ../../dunelib
+
+CFLAGS  = -g -D MACOS -I $(DUNELIBDIR) -O2
+LDFLAGS = -g -L $(DUNELIBDIR)
+
+LIBS = -lusb -ldune
+
+OBJS     = dunerec.o
+PROGNAME = dunerec
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS) $(DUNELIBDIR)/libdune.a
+	$(CC) $(LDFLAGS) -o $(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+	cp $(PROGNAME) /usr/local/bin
+	cp $(PROGNAME) /usr/local/lib/dune/bin
+	scp -q $(PROGNAME) flix:/usr/local/bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS) *.exe *.obj *.pdb *~
+
+dunerec.o: $(DUNELIBDIR)/dunelib.h

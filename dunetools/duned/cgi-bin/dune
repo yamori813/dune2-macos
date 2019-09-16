@@ -1,0 +1,288 @@
+#!/usr/bin/perl
+#
+# Time-stamp: <03/01/04 15:03:44 keuchel@rainer-keuchel.de on mediadev>
+
+$videohost = "localhost";
+$videodir  = "/video";
+$baseurl   = "/cgi-bin/dune";
+
+$appdir    = "/usr/local/lib/dune";
+$bindir    = "$appdir/bin";
+$duned   = "$bindir/duned";
+$dunec   = "$bindir/dunec";
+$duneinit = "$bindir/duneinit";
+
+$debug     = 1;
+$win32     = 0;
+
+# for HTTP/1.1 chunking is done by the webserver...
+$chunked   = 0;
+$chunksize = 4096;
+
+logmsg("Cmd: " . $ENV{'QUERY_STRING'}) if($debug);
+
+# minimalistic and ugly...
+($command, $arg) = split('=', $ENV{'QUERY_STRING'});
+$arg =~ s/%20/ /g;
+
+if($ENV{'HTTP_USER_AGENT'} =~ /Windows CE/) {
+    $client_wince  = 1;
+    $client_pixels = $ENV{'HTTP_UA_PIXELS'};
+}
+
+# ie/mediaplayer is too stupid to stream this directly...
+if($command eq "getstream" or $command eq "streamfile") {
+    # this is needed, else content-type text/plain is used!!!
+    $| = 1;
+    print "Content-Type: video/mpeg\n";
+    print "Transfer-Encoding: chunked\n" if($chunked);
+    print "\n";
+
+    if($command eq "getstream") {
+	open IN, "$dunec -h $videohost -c getstream |";
+    }
+    elsif($command eq "streamfile") {
+	open IN, "<$arg" or fatal("Cannot open $arg: $!");
+    }
+
+    while(1) {
+	$n = sysread(IN, $buf, $chunksize);
+	if($n <= 0) {
+	    logmsg("sysread: $!");
+	    last;
+	}
+
+	print(sprintf("%x", $n), "\r\n") if($chunked);
+
+	if(syswrite(STDOUT, $buf, $n) != $n) {
+	    logmsg("syswrite: $!");
+	    last;
+	}
+
+	print("\r\n") if($chunked);
+    }
+
+    print("0\r\n") if($chunked);
+    print("\r\n") if($chunked);
+
+    close IN;
+}
+else {
+    print "Content-type: text/html\n\n";
+    print "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0 Transitional//EN\">\n";
+    print "<html>\n";
+    print "<head>\n";
+    print "<meta http-equiv=\"expires\" content=\"0\">\n";
+    print "<meta http-equiv=\"pragma\" content=\"no-cache\">\n";
+    print "<title>Dune</title>\n";
+    print "</head>\n";
+    print "<body>\n";
+
+    # print %ENV;
+
+    list_commands();
+    list_channels();
+    # list_videos();
+    handle_command();
+
+    print "</body>\n";
+    print "</html>\n";
+}
+
+sub handle_command {
+    if($command eq "init") {
+	do_command("$duneinit");
+    }
+    if($command eq "startd") {
+	do_command("$duned");
+    }
+    elsif($command eq "stopd") {
+	do_command("$dunec -h $videohost -c shutdown\n");
+    }
+    elsif($command eq "playfile") {
+	do_command("$dunec -h $videohost -c \"startplay $arg\"");
+    }
+    elsif($command eq "killfile") {
+	do_command("rm -f \"$arg\"");
+    }
+    elsif($command eq "stopplay") {
+	do_command("$dunec -h $videohost -c stopplay");
+    }
+    elsif($command eq "pauseplay") {
+	do_command("$dunec -h $videohost -c pauseplay");
+    }
+    elsif($command eq "startrec") {
+	my $now = time();
+	my $newname = "$videodir/xnew$now.mpg";
+
+	do_command("$dunec -h $videohost -c \"startrec $newname\"");
+    }
+    elsif($command eq "stoprec") {
+	do_command("$dunec -h $videohost -c stoprec");
+    }
+    elsif($command eq "antenna") {
+	do_command("$dunec -h $videohost -c \"setinput 0\"");
+    }
+    elsif($command eq "svideo") {
+	do_command("$dunec -h $videohost -c \"setinput 1\"");
+    }
+    elsif($command eq "composite") {
+	do_command("$dunec -h $videohost -c \"setinput 2\"");
+    }
+    elsif($command eq "channel") {
+	do_command("$dunec -h $videohost -c \"setfreq $arg\"");
+    }
+    elsif($command eq "status") {
+	do_command("$dunec -h $videohost -c status");
+    }
+    elsif($command eq "loopon") {
+	do_command("$dunec -h $videohost -c loopon");
+    }
+    elsif($command eq "loopoff") {
+	do_command("$dunec -h $videohost -c loopoff");
+    }
+    elsif($command eq "slowon") {
+	do_command("$dunec -h $videohost -c slowon");
+    }
+    elsif($command eq "slowoff") {
+	do_command("$dunec -h $videohost -c slowoff");
+    }
+    elsif($command eq "repeat") {
+	do_command("$dunec -h $videohost -c \"repeat $arg\"");
+    }
+    elsif($command eq "skip") {
+	do_command("$dunec -h $videohost -c \"skip $arg\"");
+    }
+    elsif($command eq "setvideoformat") {
+	do_command("$dunec -h $videohost -c \"setvideoformat $arg\"");
+    }
+    elsif($command eq "setaudiodec") {
+	do_command("$dunec -h $videohost -c \"setaudiodec $arg\"");
+    }
+    elsif($command eq "listvideos") {
+	list_videos();
+    }
+    elsif($command eq "teletext") {
+	do_command("rexec -l root -p manager 127.0.0.1 /usr/local/src/work/dune/dunetools/dunevtx/duneale");
+    }
+}
+
+sub do_command {
+    $cmd = shift;
+
+    print "<p>Executing $cmd<p>\n";
+    # TODO: put /usr/local/bin in PATH
+    open IN, "$cmd 2>&1 |" or print "Cannot execute\n";
+    while(<IN>) {
+	print;
+    }
+    close IN;
+}
+
+sub list_commands {
+    print "<h2>Dune Video Daemon Commands</h2>\n";
+    print "<a href=$baseurl?init>Load Firmware</a>\n";
+    print "<a href=$baseurl?startd>Start Daemon</a>\n";
+    print "<a href=$baseurl?stopd>Stop Daemon</a>\n";
+
+    #print "<p>\n";
+    #print "<a href=$baseurl?loopon>Loop On</a>\n";
+    #print "<a href=$baseurl?loopoff>Loop Off</a>\n";
+    #print "<a href=$baseurl?slowon>Slow On</a>\n";
+    #print "<a href=$baseurl?slowoff>Slow Off</a>\n";
+    #print "<a href=$baseurl?repeat=start>Repeat Start</a>\n";
+    #print "<a href=$baseurl?repeat=end>Repeat End</a>\n";
+    #print "<a href=$baseurl?repeat=clear>Repeat Clear</a>\n";
+
+    #print "<p>\n";
+    #print "<a href=$baseurl?skip=-10>Skip -10 MB</a>\n";
+    #print "<a href=$baseurl?skip=10>Skip +10 MB</a>\n";
+    #print "<a href=$baseurl?skip=-100>Skip -100 MB</a>\n";
+    #print "<a href=$baseurl?skip=100>Skip +100 MB</a>\n";
+    #print "<a href=$baseurl?skip=-500>Skip -500 MB</a>\n";
+    #print "<a href=$baseurl?skip=500>Skip +500 MB</a>\n";
+
+    print "<p>\n";
+    print "<a href=$baseurl?antenna>Antenna</a>\n";
+    print "<a href=$baseurl?svideo>SVideo</a>\n";
+    print "<a href=$baseurl?composite>Composite</a>\n";
+
+    print "<p>\n";
+    print "<a href=$baseurl?setvideoformat=dvd,pal>DVD PAL</a>\n";
+    print "<a href=$baseurl?setvideoformat=dvdlong,pal>DVDLONG PAL</a>\n";
+    print "<a href=$baseurl?setvideoformat=svcd2,pal>SVCD PAL</a>\n";
+    print "<a href=$baseurl?setvideoformat=vcd2,pal>VCD PAL</a>\n";
+    #print "<a href=$baseurl?setvideoformat=svcd,pal60>SVCD PAL60</a>\n";
+
+    print "<p>\n";
+    print "<a href=$baseurl?setvideoformat=dvd,ntsc>DVD NTSC</a>\n";
+    print "<a href=$baseurl?setvideoformat=dvdlong,ntsc>DVDLONG NTSC</a>\n";
+    print "<a href=$baseurl?setvideoformat=svcd2,ntsc>SVCD NTSC</a>\n";
+    print "<a href=$baseurl?setvideoformat=vcd2,ntsc>VCD NTSC</a>\n";
+
+    #print "<a href=$baseurl?setaudiodec=lpcm>LPCM Audio</a>\n";
+    #print "<a href=$baseurl?setaudiodec=mpeg>MPEG Audio</a>\n";
+    
+    #print "<p>\n";
+    #print "<a href=$baseurl?listvideos>List Videos</a>\n";
+    #print "<a href=$baseurl?pauseplay>Pause Player</a>\n";
+    #print "<a href=$baseurl?stopplay>Stop Player</a>\n";
+
+    #print "<a href=$baseurl?teletext>TeleText</a>\n";
+
+    print "<p>\n";
+    print "<a href=$baseurl?startrec>Start Recorder</a>\n";
+    print "<a href=$baseurl?getstream>Start Stream</a>\n";
+    print "<a href=$baseurl?stoprec>Stop Recorder</a>\n";
+    print "<a href=$baseurl?status>Show Status</a>\n";
+}
+
+sub list_channels {
+    print "<h2>Channels</h2>\n";
+    open IN, "$appdir/channels.txt";
+    while(<IN>) {
+	next if(/^\#/);
+	($channel) = split(/[ \t]/);
+	print "<a href=$baseurl?channel=$channel>$channel</a>&nbsp;";
+    }
+}
+
+sub list_videos {
+    my $f;
+    my $n;
+
+    print "<h2>Videos</h2>\n";
+    open IN, "find $videodir/ -type f -name '*.mpg' | sort |";
+    print "<table>\n";
+    while(<IN>) {
+	chomp;
+	$f = $_;
+	$n = $_;
+	$n =~ s/$videodir\///;
+	print "<tr><td>$n\n";
+	$f =~ s/ /%20/g;
+
+	print "<td><a href=$baseurl?playfile=$f>Play</a>\n<br>";
+	if($f =~ /xnew/) {
+	    print "<td><a href=$baseurl?killfile=$f>Kill</a>\n<br>";
+	}
+	#print "<td><a href=$baseurl?streamfile=$f>Stream</a>\n<br>";
+    }
+    print "</table>\n";
+    close IN;
+}
+
+sub logmsg {
+    my $msg = shift;
+
+    open OUT, ">>$appdir/video-player.log";
+    print OUT "$msg\n";
+    close OUT;
+}
+
+sub fatal {
+    my $msg = shift;
+
+    logmsg($msg);
+    exit(1);
+}

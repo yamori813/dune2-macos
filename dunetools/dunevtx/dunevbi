@@ -1,0 +1,5 @@
+#!/bin/sh
+
+dunerec -z -R - | dunefilter -v | dunevtx -a
+#/usr/local/bin/dunevtx -a </fire2/video/vbi.dat
+

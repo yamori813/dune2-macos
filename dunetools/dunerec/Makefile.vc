@@ -1,0 +1,35 @@
+# -*- Makefile -*- for Win32
+#
+# Time-stamp: <28/12/02 07:31:03 keuchel@rainer-keuchel.de>
+
+BLIBDIR = ../../dunelib
+CFLAGS  = -nologo -D WIN32 -I h:/src/vc/include -I $(BLIBDIR) 
+LDFLAGS = -nologo -libpath:h:/src/vc/lib -libpath:$(BLIBDIR)
+
+CFLAGS  = $(CFLAGS) -D EZUSB -D PATCHED_EZUSB
+
+CFG = RELEASE
+
+!if "$(CFG)" == "RELEASE"
+CFLAGS  = $(CFLAGS) -O2
+!else
+CFLAGS  = $(CFLAGS) -Zi -Od
+LDFLAGS = $(LDFLAGS) -debug:full -pdb:none
+!endif
+
+LIBS     = vc32.lib libdune.lib wsock32.lib
+
+OBJS     = dunerec.obj
+PROGNAME = dunerec.exe
+
+all: $(PROGNAME)
+
+$(PROGNAME): $(OBJS) ../../dunelib/libdune.lib
+	link $(LDFLAGS) -out:$(PROGNAME) $(OBJS) $(LIBS)
+
+install: all
+#	cp $(PROGNAME) c:/bin
+	copy $(PROGNAME) \\keuchel2000p\d$$\bin
+
+clean:
+	rm -f $(PROGNAME) $(OBJS) *.o dunerec *~
