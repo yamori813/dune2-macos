@@ -497,7 +497,7 @@ DuneOpen()
   vid = -1;
   for (i = 0; i < cnt; ++i) {
     r = libusb_get_device_descriptor(devs[i], &desc);
-    if (desc.idVendor == 0x0411 && desc.idProduct == 0x0031) {
+    if (desc.idVendor == PCMV5_VID && desc.idProduct == PCMV5_VID) {
       sn = desc.iSerialNumber;
       vid = desc.idVendor;
       pid = desc.idProduct;

@@ -42,6 +42,9 @@ __DUNE_BEGIN
 #define WIN32_U2SBDEVNAME "\\\\.\\EZUSB-0"
 #endif
 
+#define PCMV5_VID 0x0411
+#define PCMV5_PID 0x0031
+
 #define DUNE_VID       0x2304
 #define DUNE_PID_PAL   0x061e
 #define DUNE_PID_NTSC  0x061d
