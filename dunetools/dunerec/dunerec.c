@@ -32,7 +32,7 @@
 #define VERSION "1.0"
 
 // max value in libusb?!
-#define VBUFSIZE    4096
+#define VBUFSIZE    (4096 * 16)
 
 #ifndef WIN32
 #define stricmp strcasecmp
