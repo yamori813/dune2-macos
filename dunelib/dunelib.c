@@ -29,8 +29,7 @@
 #include "ezusbsys.h"
 #endif
 
-//#define UCODEVERSION "MPEG2.02.26"
-#define UCODEVERSION "MPEG2.02.27b"
+#define UCODEVERSION "MPEG2.02."
 
 #define stricmp strcasecmp
 
@@ -1753,7 +1752,7 @@ DuneReadStream(dunedev_t *bdev, unsigned char *buf, int len)
 int
 DuneReadStream(dunedev_t *bdev, unsigned char *buf, int len)
 {
-  int timeout = 1000;
+  int timeout = 2000;
   int readlen;
   int ret;
 
@@ -3548,6 +3547,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 {
   char *ucode = NULL;
   uint8 *mux = NULL;
+  int varlen;
 
   memcpy(&bdev->params, params, sizeof(duneparams_t));
 
@@ -3629,11 +3629,13 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
   if(DuneKFirPreLoadParams(bdev) < 0)
     return -1;
 
+  varlen = strlen(UCODEVERSION);
+
   if(params->rectype == DUNE_DVD)
     {
       if(params->videostandard == DUNE_NTSC)
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_NTSC(bdev);
 	      mux = muxtable_dvd2_ntsc; 
@@ -3646,7 +3648,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 	}
       else
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_PAL(bdev);
 	      mux = muxtable_dvd2_pal; 
@@ -3662,7 +3664,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
     {
       if(params->videostandard == DUNE_NTSC)
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_LONG_NTSC(bdev);
 	      mux = muxtable_dvd2_long_ntsc; 
@@ -3674,7 +3676,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 	}
       else
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_LONG_PAL(bdev);
 	      mux = muxtable_dvd2_long_pal; 
@@ -3689,7 +3691,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
     {
       if(params->videostandard == DUNE_NTSC)
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_5MBIT_NTSC(bdev);
 	      mux = muxtable_dvd2_5mbit_ntsc; 
@@ -3701,7 +3703,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 	}
       else
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_DVD2_5MBIT_PAL(bdev);
 	      mux = muxtable_dvd2_5mbit_pal; 
@@ -3732,7 +3734,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
     {
       if(params->videostandard == DUNE_NTSC)
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_SVCD2_MPEG2_NTSC(bdev);
 	      mux = muxtable_svcd2_mpeg2_ntsc; 
@@ -3746,7 +3748,7 @@ DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params)
 	}
       else
 	{
-	  if(strcmp(dune_ucode_version, UCODEVERSION) == 0)
+	  if(strncmp(dune_ucode_version, UCODEVERSION, varlen) == 0)
 	    {
 	      KFir_Init_SVCD2_MPEG2_PAL(bdev);
 	      mux = muxtable_svcd2_mpeg2_pal; 
