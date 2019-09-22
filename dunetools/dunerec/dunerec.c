@@ -19,6 +19,7 @@
 #endif
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <signal.h>
 #include <sys/stat.h>
 #include <errno.h>
@@ -64,7 +65,7 @@ int scanflag;
 int infoflag;
 long maxfilesize;
 
-int bufsize = 0x4000;
+int bufsize = 0x4000 * 8;
 
 dunedev_t *bdev;
 duneparams_t params;

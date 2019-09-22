@@ -302,7 +302,8 @@ int DuneSetVBIMode(dunedev_t *bdev, uint32 mode);
 int DuneSetupColors(dunedev_t *bdev, char *config);
 
 int DuneStartRecording(dunedev_t *bdev);
-int DuneStopRecording(dunedev_t *bdev);
+int DuneStopRecording1(dunedev_t *bdev);
+int DuneStopRecording2(dunedev_t *bdev);
 
 int DuneStartPlaying(dunedev_t *bdev);
 int DuneStopPlaying(dunedev_t *bdev);
@@ -374,6 +375,8 @@ int DuneSetVideoBitrate(dunedev_t *bdev, uint32 rate);
 
 int DuneInitParams(duneparams_t *params);
 int DuneReadConfig(const char *fname, duneparams_t *params);
+
+int DuneInitializeDevice(dunedev_t *bdev, duneparams_t *params);
 
 int DuneShowChipInfo(dunedev_t *bdev, int infoflag);
 
